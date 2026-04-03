@@ -15,7 +15,7 @@
 4. [Vérification de la connexion réseau](#4-vérification-de-la-connexion-réseau)
 5. [Connexion SSH sans mot de passe](#5-connexion-ssh-sans-mot-de-passe)
    - 5.1 [Générer une clé SSH](#51-générer-une-clé-ssh)
-   - 5.2 [Copier la clé sur les machines cibles](#52-copier-la-clé-sur-les-machines-cibles)
+   - 5.2 [Copier clé vers CLILI01](#52-copier-clé-vers-clili01)
    - 5.3 [Tester la connexion](#53-tester-la-connexion)
 
 ---
@@ -108,3 +108,104 @@ sudo systemctl status ssh
 sudo hostnamectl set-hostname CLILIN01
 ```
 <img width="629" height="133" alt="sudo hostnamectl set-hostname" src="https://github.com/user-attachments/assets/5616eab7-3596-42c8-9d32-4f4537a8644d" />
+
+## 3.2 Configurer l'IP fixe
+
+Sur Ubuntu, la configuration de l'IP fixe peut se faire via l'interface graphique.
+
+Aller dans **Paramètres**, **Réseau** cliquer sur la roue cranté de la carte réseau.
+
+Dans l'onglet **IPv4** :
+- Passer le mode de **Automatique (DHCP)** à **Manuel**
+- Renseigner les champs suivants
+- 
+<img width="852" height="608" alt="config reseau perm" src="https://github.com/user-attachments/assets/7a787f9c-cc65-4c73-afdb-610c5205185d" />
+
+
+| Champ | Valeur |
+|---|---|  
+| Adresse | 172.16.50.30 |
+| Masque de sous-réseau | 255.255.255.0 |
+| DNS | 8.8.8.8 |
+
+
+Cliquer sur **Appliquer**, puis désactiver et réactiver la connexion réseau pour que les changements prennent effet.
+
+IP fixe Ubuntu 172.16.50.30
+
+> La commande `ip a` doit afficher l'adresse **172.16.50.30**.
+
+<img width="1150" height="498" alt="ip a Verif" src="https://github.com/user-attachments/assets/3e08f1aa-76b8-42cb-8bfc-d4dca54594dc" />
+
+### 3.3 Installer OpenSSH
+```
+sudo apt update && sudo apt install openssh-server -y
+```
+<img width="738" height="152" alt="sudo apt ubuntu" src="https://github.com/user-attachments/assets/9fe1b3dd-9979-4b49-9967-ae09f937bfd9" />
+
+
+ activer le service SSH :
+
+<img width="1122" height="539" alt="systemctl status" src="https://github.com/user-attachments/assets/ef35ac6b-304b-4db9-a70e-d578188fb8b9" />
+
+ ```
+ sudo systemctl start ssh
+ sudo systemctl enable ssh
+ sudo systemctl status ssh
+ ```
+ > Le statut doit indiquer **active (running)** en vert.
+
+ ### 3.4 Configuration du pare-feu
+
+ ```
+ sudo ufw allow
+ sudo ufw enable
+ sudo ufw status
+ ```
+ > Résultat attendu : `22/tcp ALLOW`
+ 
+ ---
+
+ ## 4. Vérification de la connexion réseau
+
+Depuis **SRVLX01**, vérifier que la communication avec CLILIN01 fonctionne :
+```
+ping 172.16.50.30
+```
+<img width="542" height="371" alt="ping" src="https://github.com/user-attachments/assets/74c60193-5034-44ae-b40f-82cbaf495834" />
+
+> Résultat attendu **0% packet loss** - les machines se voient correctement sur le réseau.
+
+---
+
+## 5. Connexion SSH sans mot de passe
+
+> Une clé SSH fonctionne comme un tunnel sécurisé entre deux ordinateurs elle permet de se connecter sans mot de passe.
+
+## 5.1 Générer une clé SSH
+
+Depuis **SRVLX01** :
+
+ssh-keygen -t ed22519 -C "root@172.16.50.10"
+
+<img width="593" height="358" alt="clé SSH debian" src="https://github.com/user-attachments/assets/2e3a4fc5-2b4b-4093-a1bd-07b00f764c88" />
+
+ > Appuyez **Entrée** pour valider par défaut.
+
+ ### 5.2 Copier clé vers CLILI01
+
+ssh-copy-id `wilder@172.16.50.30`
+ou
+ssh-copy-id -i ~/.ssh/id_ed22519.pub `wilder@172.16.50.30`
+
+<img width="933" height="270" alt="ssh-copy-id" src="https://github.com/user-attachments/assets/62295ea9-8e6a-433e-baa3-09de9e90ed8e" />
+
+>  Le mot de passe de passe de `wilder` sera demandé une dernière fois : `Azerty1*`
+
+### 5.3 Tester la connexion 
+
+`ssh wilder@172.16.50.30`
+
+<img width="722" height="245" alt="connexion établi" src="https://github.com/user-attachments/assets/3ae3cacb-181e-49d9-81fb-48e14d7c55fe" />
+
+> connexion sans demander de **mot de passe**
