@@ -1,6 +1,6 @@
 # README.md
 
-## Projet Administration Centralisée 
+
 
 ### Sommaire
 1. [Description du projet](#1-description-du-projet)
