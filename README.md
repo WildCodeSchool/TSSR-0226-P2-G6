@@ -5,9 +5,10 @@
 ### Sommaire
 1. [Description du projet](#1-description-du-projet)
 2. [Intro](#2-intro)
-3. [Logiciels utilisées](#3-logiciels-utilisées)
+3. [Choix techniques](#3-choix-techniques)
 - 3.1 [Machines Virtuelles](#31-machines-virtuelles)
 - 3.2 [Outils utilisés](#32-outils-utilisés)
+4. [Difficultés rencontrées](#4-difficultés-rencontrées)
 
 ## 1. Description du projet
 
@@ -22,12 +23,12 @@ Il est capable de :
 
 ## 2. Intro
 
-Ce projet consiste à mettre en place une infrastructure virtuelle client/serveur Linux et déveloper un script d'administration centrakisée en Bash.
+Ce projet consiste à mettre en place une infrastructure virtuelle client/serveur Linux et déveloper un script d'administration centralisée en Bash.
 Les machines sont sur le meme réseau.
 
 ---
 
-## 3. Logiciels utilisées
+## 3. Choix techniques
 
 ### 3.1 Machines Virtuelles
 
@@ -43,8 +44,15 @@ Les machines sont sur le meme réseau.
 | Outil | Usage |
 |-------|-------|
 | VirtualBox | Virtualisation des machines |
-| Github | Dépot |
+| Github | Gestion de versions et dépot |
 | OpenSSH Server | Communication entre les machines |
 | Nano | Editer fichiers avec Terminal |
+| Bash | Language du script d'admisnistration |
 
 ---
+
+## 4. Difficultés rencontrées 
+
+ ### Sprint 1 
+ - Configuration du réseau interne entre les VMs — les machines ne se voyaient pas au départ
+ - Configuration de l'IP fixe sur Ubuntu via Netplan
