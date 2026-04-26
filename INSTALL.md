@@ -17,6 +17,11 @@
    - 5.1 [Générer une clé SSH](#51-générer-une-clé-ssh)
    - 5.2 [Copier clé vers CLILI01](#52-copier-clé-vers-clili01)
    - 5.3 [Tester la connexion](#53-tester-la-connexion)
+6. [Installation et configuration du script](#6-installation-et-configuration-du-script)
+     - 6.1 [Aller dans le dossier Scripts](#61-aller-dans-le-dossier-scripts)
+     - 6.2 [Rendre le script exécutable](#62-rendre-le-script-exécutable)
+     - 6.3 [Configurer les droits sudo sur CLILIN01](#63-configurer-les-droits-sudo-sur-clilin01)
+     - 6.4 [Vérifier que le script fonctionne](#64-vérifier-que-le-script-fonctionne)
 
 ---
 
@@ -209,3 +214,47 @@ ssh-copy-id -i ~/.ssh/id_ed22519.pub `wilder@172.16.50.30`
 <img width="722" height="245" alt="connexion établi" src="https://github.com/user-attachments/assets/3ae3cacb-181e-49d9-81fb-48e14d7c55fe" />
 
 > connexion sans demander de **mot de passe**
+
+## 6. Installation et configuration du script
+
+### 6.1 Aller dans le dossier Scripts
+```
+cd TSSR-0226-P2-G6/Scripts
+
+```
+
+### 6.2 Rendre le script exécutable
+
+```
+chmod +x script.sh
+```
+
+### 6.3 Configurer les droits sudo sur CLILIN01
+
+Se connecter sur CLILIN01 :
+```
+ssh wilder@172.16.50.30
+```
+
+Ouvrir le fichier sudoers :
+```
+sudo visudo
+```
+
+Ajouter cette ligne à la fin du fichier :
+
+```
+wilder ALL=(ALL) NOPASSWD: /usr/sbin/useradd, /usr/sbin/userdel, /usr/sbin/deluser, /usr/sbin/chpasswd, /usr/bin/passwd, /sbin/shutdown, /sbin/reboot
+
+```
+
+Sauvegarder avec **Ctrl+O** **X** **Entrée**
+
+> **ATTENTION** Cette étape est obligatoire pour que le script puisse exécuter les commandes à distance sans demander de mot de passe.
+
+### 6.4 Vérifier que le script fonctionne
+
+Depuis SRVLX01 lancer le script :
+```bash
+./script.sh
+```
