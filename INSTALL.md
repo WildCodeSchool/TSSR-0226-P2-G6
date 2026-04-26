@@ -22,6 +22,7 @@
      - 6.2 [Rendre le script exécutable](#62-rendre-le-script-exécutable)
      - 6.3 [Configurer les droits sudo sur CLILIN01](#63-configurer-les-droits-sudo-sur-clilin01)
      - 6.4 [Vérifier que le script fonctionne](#64-vérifier-que-le-script-fonctionne)
+7. [FAQ](#7-faq)
 
 ---
 
@@ -258,3 +259,29 @@ Depuis SRVLX01 lancer le script :
 ```bash
 ./script.sh
 ```
+
+Entrer l'IP de CLILIN01 :
+
+```
+
+172.16.50.30
+
+```
+
+> Résultat attendu : **Connexion etablie !** puis le menu principal s'affiche
+
+---
+
+## 7. FAQ
+
+**Q : Le script affiche "Impossible de joindre la machine".**
+R : Vérifier que CLILIN01 est allumée et que SSH est actif avec `sudo systemctl status ssh`.
+
+**Q : Les commandes shutdown ou reboot demandent un mot de passe.**  
+R : Vérifier que la ligne a bien été ajoutée dans le fichier sudoers de CLILIN01 — voir étape 6.3.
+
+**Q : La création d'utilisateur échoue.**  
+R : Vérifier que `chpasswd` et `useradd` sont bien dans le fichier sudoers de CLILIN01.
+
+**Q : La connexion SSH demande un mot de passe.**  
+R : La clé SSH n'est plus valide — refaire l'étape 5 de ce guide.
