@@ -1,1 +1,199 @@
+#!/bin/bash
 
+# ==============================================================
+# Script d'administration centralisée
+# Auteur : grégory DT
+# Description : Gestion à distance des machines et utilisateurs
+# ==============================================================
+
+# --- Variables ---
+CIBLE_IP=""
+CIBLE_USER="wilder"
+
+# ==============================================================
+# FONCTIONS - INFORMATIONS MACHINES
+# ==============================================================
+
+info_os() {
+    echo "Version de l OS :"
+ssh "$CIBLE_USER@$CIBLE_IP" "cat /etc/os-release | grep PRETTY_NAME"
+menu_machine
+}
+
+
+info_ip() {
+    echo "Adresse IP : "
+    ssh "$CIBLE_USER@$CIBLE_IP" "hostname -I"
+    menu_machine
+}
+
+
+# ===============================================================
+# FONCTIONS - INFORMATIONS UTILISATEURS
+# ===============================================================
+
+info_derniere_connexion() {
+    echo "Dernière connexion de $1 :"
+    ssh "$CIBLE_USER@$CIBLE_IP" "last $1 | head -1"
+    menu_utilisateur
+}
+ info_dernier_mdp() {
+    echo "Dernier changement mdp $1 :"
+    ssh "$CIBLE_USER@$CIBLE_IP" "sudo chage -l $1 | grep 'Last password change'"
+     menu_utilisateur
+}
+
+ # ==============================================================
+ # FONCTIONS - ACTIONS MACHINES
+ # ==============================================================
+  action_arreter() {
+    echo "Arret de $CIBLE_IP"
+    ssh "$CIBLE_USER@$CIBLE_IP" "sudo shutdown now"
+    echo "Commande envoyée"
+  }
+
+action_redemarrer() {
+    echo "Redemarrer de $CIBLE_IP"
+    ssh "$CIBLE_USER@$CIBLE_IP" "sudo reboot"
+    echo "Commande envoyée"
+}
+
+# ==============================================================
+# FONCTIONS - ACTIONS UTILISATEURS 
+# ==============================================================
+
+action_creer_utilisateur() {
+    echo "Nom du nouvel utilisateur :"
+    read NOM_USER
+    ssh "$CIBLE_USER@$CIBLE_IP" "sudo adduser $NOM_USER"
+    echo "Utilisateur $NOM_USER crée"
+    menu_utilisateur
+}
+
+action_supprimer_utilisateur() {
+    echo "Nom de l'utilisateur a supprimer :"
+    read NOM_USER
+    ssh "$CIBLE_USER@$CIBLE_IP" "sudo deluser $NOM_USER"
+    echo "Utilisateur $NOM_USER supprime"
+    menu_utilisateur
+}
+
+action_modifier_mdp() {
+    echo "Nom de l utilisateur :"
+    read NOM_USER
+    ssh "$CIBLE_IP@$CIBLE_USER" "sudo passwd $NOM_USER"
+    echo "Mot de passe modifié"
+    menu_utilisateur
+}
+
+# =============================================================
+# MENUS
+# =============================================================
+
+menu_machine() {
+    echo ""
+    echo "=== GESTION DE LA MACHINE ==="
+    echo "1. Arreter la machine"
+    echo "2. Redemarrer la machine"
+    echo "3. Voir la version de l OS"
+    echo "4. Voir l adresse IP"
+    echo "5. Retour au menu principal"
+    echo ""
+    echo -n "Votre choix :"
+    read CHOIX 
+    case $CHOIX in
+    1) action_arreter ;;
+    2) action_redemarrer ;;
+    3) info_os ;;
+    4) info_ip ;;
+    5) menu_principal ;;
+    *) echo "Choix invaide" ; menu_machine ;;
+    esac    
+}
+
+menu_utilisateur() {
+    echo ""
+    echo "=== GESTION DES UTILISATEURS ==="
+    echo "1. Creer un utilisateur"
+    echo "2. Supprimer un utilisateur"
+    echo "3. Modifier le mot de passe"
+    echo "4. Voir la derniere connexion"
+    echo "5. Voir le dernier changement de mdp"
+    echo "6. Retour au menu principal"
+    echo ""
+    echo -n "Votre choix : "
+    read CHOIX
+    case $CHOIX in
+        1) action_creer_utilisateur ;;
+        2) action_supprimer_utilisateur ;;
+        3) action_modifier_mdp ;;
+        4)
+            echo "Nom de l utilisateur :"
+            read NOM_USER
+            info_derniere_connexion "$NOM_USER"
+            ;;
+        5)
+            echo "Nom de l utilisateur :"
+            read NOM_USER
+            info_dernier_mdp "$NOM_USER"
+            ;;
+        6) menu_principal ;;
+        *) echo "Choix invalide" ; menu_utilisateur ;;
+    esac
+}
+
+menu_principal() {
+    clear
+    echo "============================================"
+    echo "   OUTIL D ADMINISTRATION CENTRALISEE"
+    echo "   Cible : $CIBLE_IP"
+    echo "============================================"
+    echo ""
+    echo "1. Gerer la machine"
+    echo "2. Gerer les utilisateurs"
+    echo "3. Quitter"
+    echo ""
+    echo -n "Votre choix : "
+    read CHOIX
+    case $CHOIX in
+        1) menu_machine ;;
+        2) menu_utilisateur ;;
+        3)
+            echo ""
+            echo "Au revoir"
+            exit 0
+            ;;
+        *) echo "Choix invalide" ; menu_principal ;;
+    esac
+}
+
+# ============================================================
+#  CODE PRINCIPAL
+# ============================================================
+
+clear
+echo "============================================"
+echo "   OUTIL D ADMINISTRATION CENTRALISEE"
+echo "============================================"
+echo ""
+echo "Entrez l IP ou le nom de la machine cible :"
+echo -n "> "
+read CIBLE_IP
+
+if [ -z "$CIBLE_IP" ]; then
+    echo "Aucune cible saisie. Fin du script."
+    exit 1
+fi
+
+echo "Connexion a $CIBLE_IP..."
+ssh -q "$CIBLE_USER@$CIBLE_IP" exit
+
+if [ $? -ne 0 ]; then
+    echo "Impossible de joindre $CIBLE_IP."
+    exit 1
+fi
+
+echo "Connexion etablie !"
+sleep 1
+
+menu_principal
